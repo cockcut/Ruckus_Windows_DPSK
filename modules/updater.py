@@ -146,7 +146,14 @@ def repo_has_source() -> bool:
     return r.status_code == 200
 
 
-def check_update(root: Path, frozen: bool = False) -> dict:
+def _norm_ver(s: str) -> str:
+    t = (s or "").strip()
+    if t.lower().startswith("v") and len(t) > 1 and t[1].isdigit():
+        t = t[1:]
+    return t.lower()
+
+
+def check_update(root: Path, frozen: bool = False, current_version: str = "") -> dict:
     try:
         if frozen:
             remote_info = find_remote_exe()
@@ -176,11 +183,18 @@ def check_update(root: Path, frozen: bool = False) -> dict:
             "message": f"업데이트 확인 실패: {e}",
         }
     local = read_local_sha(root)
-    if (not frozen) and (not local) and remote:
-        blob = extra.get("source_blob") or ""
-        if gui_app_blob_matches(root, blob):
-            write_local_sha(root, remote)
-            local = remote
+    if (not local) and remote:
+        if frozen:
+            parts = str(remote).split(":")
+            tag = parts[1] if len(parts) >= 3 and parts[0] == "rel" else ""
+            if current_version and tag and _norm_ver(tag) == _norm_ver(current_version):
+                write_local_sha(root, remote)
+                local = remote
+        else:
+            blob = extra.get("source_blob") or ""
+            if gui_app_blob_matches(root, blob):
+                write_local_sha(root, remote)
+                local = remote
     available = bool(remote) and remote != local
     out = {
         "ok": True,
