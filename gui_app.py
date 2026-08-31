@@ -34,7 +34,7 @@ RESULTS_UDPSK = RESULTS_DIR / "dpsk_ul"
 for _d in (RESULTS_DIR, RESULTS_DPSK, RESULTS_UDPSK):
     _d.mkdir(exist_ok=True)
 
-APP_VERSION = "0.0.10p1"
+APP_VERSION = "0.0.10p2"
 APP_TITLE = f"HSITX Ruckus DPSK Tool v{APP_VERSION}"
 BG = "#f4f4f9"
 CARD = "#ffffff"
