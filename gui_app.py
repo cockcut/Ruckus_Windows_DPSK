@@ -402,10 +402,6 @@ class App(Tk):
                command=self._dpsk_csv).pack(side=RIGHT, padx=4)
         Button(head, text="선택 항목 삭제", bg="#dc3545", fg="white", relief="flat", padx=8,
                command=self._dpsk_delete).pack(side=RIGHT, padx=4)
-        Button(head, text="결과 폴더 열기", bg=BTN_BG, relief="solid", borderwidth=1, padx=8,
-               command=lambda: self._open_path(RESULTS_DPSK)).pack(side=RIGHT, padx=4)
-        Button(head, text="최근 결과 다운로드", bg="#28a745", fg="white", relief="flat", padx=8,
-               command=lambda: self._download_latest_results(RESULTS_DPSK)).pack(side=RIGHT, padx=4)
 
         cols = ("zone", "wlan", "user", "psk", "mac", "role", "vlan", "group", "created", "exp", "status")
         tree_fr = Frame(main, bg=CARD)
@@ -814,10 +810,6 @@ class App(Tk):
                command=self._udpsk_csv).pack(side=RIGHT, padx=4)
         Button(head, text="선택 항목 삭제", bg="#dc3545", fg="white", relief="flat", padx=8,
                command=self._udpsk_delete).pack(side=RIGHT, padx=4)
-        Button(head, text="결과 폴더 열기", bg=BTN_BG, relief="solid", borderwidth=1, padx=8,
-               command=lambda: self._open_path(RESULTS_UDPSK)).pack(side=RIGHT, padx=4)
-        Button(head, text="최근 결과 다운로드", bg="#28a745", fg="white", relief="flat", padx=8,
-               command=lambda: self._download_latest_results(RESULTS_UDPSK)).pack(side=RIGHT, padx=4)
 
         cols = ("wlan", "dpsk_len", "shared_dpsk", "shared_num", "user", "psk", "vlan",
                 "clients", "usage", "mac", "period", "status", "start_point",
