@@ -7,6 +7,7 @@ SmartZone / Unleashed DPSK + GitHub 업데이트
 import os
 import sys
 import csv
+import shutil
 import threading
 import queue
 from datetime import datetime
@@ -34,7 +35,7 @@ RESULTS_UDPSK = RESULTS_DIR / "dpsk_ul"
 for _d in (RESULTS_DIR, RESULTS_DPSK, RESULTS_UDPSK):
     _d.mkdir(exist_ok=True)
 
-APP_VERSION = "0.0.10p2"
+APP_VERSION = "0.0.1"
 APP_TITLE = f"HSITX Ruckus DPSK Tool v{APP_VERSION}"
 BG = "#f4f4f9"
 CARD = "#ffffff"
@@ -401,6 +402,10 @@ class App(Tk):
                command=self._dpsk_csv).pack(side=RIGHT, padx=4)
         Button(head, text="선택 항목 삭제", bg="#dc3545", fg="white", relief="flat", padx=8,
                command=self._dpsk_delete).pack(side=RIGHT, padx=4)
+        Button(head, text="결과 폴더 열기", bg=BTN_BG, relief="solid", borderwidth=1, padx=8,
+               command=lambda: self._open_path(RESULTS_DPSK)).pack(side=RIGHT, padx=4)
+        Button(head, text="최근 결과 다운로드", bg="#28a745", fg="white", relief="flat", padx=8,
+               command=lambda: self._download_latest_results(RESULTS_DPSK)).pack(side=RIGHT, padx=4)
 
         cols = ("zone", "wlan", "user", "psk", "mac", "role", "vlan", "group", "created", "exp", "status")
         tree_fr = Frame(main, bg=CARD)
@@ -809,6 +814,10 @@ class App(Tk):
                command=self._udpsk_csv).pack(side=RIGHT, padx=4)
         Button(head, text="선택 항목 삭제", bg="#dc3545", fg="white", relief="flat", padx=8,
                command=self._udpsk_delete).pack(side=RIGHT, padx=4)
+        Button(head, text="결과 폴더 열기", bg=BTN_BG, relief="solid", borderwidth=1, padx=8,
+               command=lambda: self._open_path(RESULTS_UDPSK)).pack(side=RIGHT, padx=4)
+        Button(head, text="최근 결과 다운로드", bg="#28a745", fg="white", relief="flat", padx=8,
+               command=lambda: self._download_latest_results(RESULTS_UDPSK)).pack(side=RIGHT, padx=4)
 
         cols = ("wlan", "dpsk_len", "shared_dpsk", "shared_num", "user", "psk", "vlan",
                 "clients", "usage", "mac", "period", "status", "start_point",
@@ -985,6 +994,32 @@ class App(Tk):
             pass
         messagebox.showinfo("저장", f"{len(rows)}건 저장\n{out}")
 
+
+    def _download_latest_results(self, folder: Path, suffixes=None):
+        folder = Path(folder)
+        if not folder.is_dir():
+            messagebox.showwarning("안내", "결과 폴더가 없습니다. 먼저 조회하세요.")
+            return
+        cands = [f for f in folder.iterdir() if f.is_file()]
+        if suffixes:
+            cands = [f for f in cands if any(f.name.endswith(s) for s in suffixes)]
+        if not cands:
+            messagebox.showwarning("안내", "다운로드할 결과 파일이 없습니다.")
+            return
+        src = max(cands, key=lambda p: p.stat().st_mtime)
+        dest = filedialog.asksaveasfilename(
+            title="최근 결과 저장",
+            initialfile=src.name,
+            defaultextension=src.suffix or ".csv",
+            filetypes=[("CSV", "*.csv"), ("All", "*.*")],
+        )
+        if not dest:
+            return
+        try:
+            shutil.copy2(src, dest)
+            messagebox.showinfo("다운로드", f"최근 결과 저장:\n{dest}")
+        except Exception as e:
+            messagebox.showerror("다운로드 실패", str(e))
 
     def _open_path(self, path: Path):
         path = Path(path)
